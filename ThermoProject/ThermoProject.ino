@@ -7,11 +7,21 @@
 #define Ki 0
 #define Kd 0
 
+
 Servo jag;
 
 long out[] = {150,145,140,135,130,125,120,115,110,105,100,95,90,85,80,75,70,65,60,55,50,45,40,35,30,25,20,15,10,5,0,-5,-10,-15,-20,-25,-30,-35,-40};
 long in[] = {1618,1827,2070,2350,2676,3057,3503,4026,4643,5372,6238,7269,8504,9988,11780,13951,16597,19835,23820,28749,34879,42548,52200,64422,80003,100000,125851,159522,203723,262229,340346,445602,588793,785573,1058901,1442861,1988706,2774565,3921252};
 const int ARR_LEN = 39;
+
+const double vref = 5.0; //Reference voltage
+const double pullup1 = 99.7*1000; //Pullup resistor
+
+double temp = 25; //Thermistor temp
+double PIDOutput = 0;
+double setpoint = 25;
+PID tempController(&temp, &PIDOutput, &setpoint, Kp, Ki, Kd, REVERSE);
+
 
 void setup()
 {
@@ -22,13 +32,13 @@ void setup()
 
 void loop()
 {
-  // put your main code here, to run repeatedly:
-
+  
 }
 
-void setPower (int PIN, double percent)
+int setPower (Servo controller, double percent)
 {
-  
+  controller.write(map(percent, -180, 180, 0, 100));
+  return controller.read();
 }
 
 int readTherm(int port, int samples, double pullup_res, double v_ref)
