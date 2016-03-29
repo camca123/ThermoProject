@@ -26,13 +26,15 @@ PID tempController(&temp, &PIDOutput, &setpoint, Kp, Ki, Kd, REVERSE);
 void setup()
 {
   jag.attach(JAG_PIN);  //Jag is connected to a pin
-  Serial.begin(19200);
+  Serial.begin(9600);
   Serial.println("Startup");
 }
 
 void loop()
 {
-  
+  Serial.println("AAAAAAAAAAAAA");
+  //temp = readTherm(0, 40, pullup1, vref);
+  //Serial.println("Temperature reading \t" + String(temp));
 }
 
 int setPower (Servo controller, double percent)
