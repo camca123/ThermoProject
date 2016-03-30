@@ -34,7 +34,7 @@ void loop()
 {
   if (Serial.available() > 0) //If data is available
     setpoint = Serial.read();
-  temp = readTherm(0, 1000, pullup1, vref); //Read for 1 second and return the average
+  temp = readTherm(0, 500, pullup1, vref); //Read for 1 second and return the average
   temp = random(100);
   Serial.println(String(temp)); // Print temperature reading to the serial console
 }

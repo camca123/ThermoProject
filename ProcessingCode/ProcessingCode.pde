@@ -10,6 +10,7 @@ float inByte = 0;
 float setpoint = 25;
 float tempRange = 150;
 float timeRange = 60; //Seconds
+float updateTime = 200; //Microseconds
 
 long beforeTime = 0;
 
@@ -48,12 +49,11 @@ void setup () {
   lines[1] = new Line(0, 0, 0, 0, 0, 255, 0); //Setpoint line
 }
 void draw () {
-  if (millis() - beforeTime > 1000){ //Wait 1 second before updating
+  if (millis() - beforeTime > updateTime){ //Wait 1 second before updating
     for (int C = 0;C < lines.length;C++){ //Draw all of the lines
       strokeWeight(6);
       stroke(lines[C].R, lines[C].G, lines[C].B);
       line(lines[C].x_1, height - lines[C].y_1, lines[C].x_2, height - lines[C].y_2);
-      println(str(C)+": "+str(lines[C].x_2));
     }
   
     if (lines[0].x_2 >= width) { // at the edge of the screen, go back to the beginning
@@ -64,12 +64,9 @@ void draw () {
       background(255, 255, 255); //Redraw the background
     } else {
       for (int C = 0;C < lines.length;C++){ //Update all of the lines
-        
-        
           lines[C].x_1 = lines[C].x_2;
           lines[C].y_1 = lines[C].y_2;
-          lines[C].x_2 += (width/timeRange);
-          
+          lines[C].x_2 += (width/timeRange)*(updateTime/1000);
       }
       lines[0].y_2 = map(currTemp, 0, tempRange, 0, height);
       lines[1].y_2 = map(setpoint, 0, tempRange, 0, height);
@@ -102,7 +99,7 @@ void drawLabels() {
   fill(0, 0, 255);
   textSize(25);
   text("Temperature (deg C)", 40, height/2);
-  text("Time (s)", width/2, height - 30);
+  text("Time (s)", width/2, height - 40);
   
   fill(255, 255, 255);    // White rectangle for the text update
   noStroke();
