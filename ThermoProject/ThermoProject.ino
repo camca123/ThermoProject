@@ -10,8 +10,8 @@
 
 Servo jag;
 
-long out[] = {150,145,140,135,130,125,120,115,110,105,100,95,90,85,80,75,70,65,60,55,50,45,40,35,30,25,20,15,10,5,0,-5,-10,-15,-20,-25,-30,-35,-40};
-long in[] = {1618,1827,2070,2350,2676,3057,3503,4026,4643,5372,6238,7269,8504,9988,11780,13951,16597,19835,23820,28749,34879,42548,52200,64422,80003,100000,125851,159522,203723,262229,340346,445602,588793,785573,1058901,1442861,1988706,2774565,3921252};
+long out_lookup[] = {150,145,140,135,130,125,120,115,110,105,100,95,90,85,80,75,70,65,60,55,50,45,40,35,30,25,20,15,10,5,0,-5,-10,-15,-20,-25,-30,-35,-40};
+long in_lookup[] = {1618,1827,2070,2350,2676,3057,3503,4026,4643,5372,6238,7269,8504,9988,11780,13951,16597,19835,23820,28749,34879,42548,52200,64422,80003,100000,125851,159522,203723,262229,340346,445602,588793,785573,1058901,1442861,1988706,2774565,3921252};
 const int ARR_LEN = 39;
 
 const double vref = 5.0; //Reference voltage
@@ -32,11 +32,11 @@ void setup()
 
 void loop()
 {
-  Serial.println(map(analogRead(0), 0, 1023, 0, 100));
-  temp++;
-  delay(5);
-  //temp = readTherm(0, 40, pullup1, vref);
-  //Serial.println("Temperature reading \t" + String(temp));
+  if (Serial.available() > 0) //If data is available
+    setpoint = Serial.read();
+  temp = readTherm(0, 1000, pullup1, vref); //Read for 1 second and return the average
+  temp = random(100);
+  Serial.println(String(temp)); // Print temperature reading to the serial console
 }
 
 int setPower (Servo controller, double percent)
@@ -45,25 +45,34 @@ int setPower (Servo controller, double percent)
   return controller.read();
 }
 
-int readTherm(int port, int samples, double pullup_res, double v_ref)
+float readTherm(int port, long time, double pullup_res, double v_ref)
 {
-  long tempTotal = 0;
+  long tempTotal = 0, numPoints = 0;
+  unsigned long before = millis();
   
-  for(int C = 0;C < samples;C++)
-  {
+  while(millis() - before < time){
     tempTotal += (pullup_res*(v_ref-((analogRead(port)/1023.0)*v_ref)))/((analogRead(port)/1023.0)*v_ref);
-    delay(1);
+    numPoints++;
   }
-  long avg = tempTotal/(double)(samples);
-  return multiMap((long)(avg), in, out, ARR_LEN);
+  
+  float avg = ((float)tempTotal)/((float)numPoints);
+  return multiMap(avg, in_lookup, out_lookup, ARR_LEN);
 }
 
 int multiMap(long val, long* _in, long* _out, uint8_t sizee)
 {
   // take care the value is within range
   // val = constrain(val, _in[0], _in[size-1]);
-  if (val <= _in[0]){Serial.print("VALUE TOO SMALL:  "); Serial.println(String(val)+" <= "+String(_in[0])); return _out[0];}
-  if (val >= _in[sizee-1]){Serial.print("VALUE TOO LARGE  "); Serial.println(String(val)+" >= "+String(_in[0])); return _out[sizee-1];}
+  if (val <= _in[0]){
+    //Serial.print("VALUE TOO SMALL:  ");
+    //Serial.println(String(val)+" <= "+String(_in[0]));
+    return _out[0];
+    }
+  if (val >= _in[sizee-1]){
+    //Serial.print("VALUE TOO LARGE  ");
+    //Serial.println(String(val)+" >= "+String(_in[0]));
+    return _out[sizee-1];
+  }
 
   // search right interval
   uint8_t pos = 1;  // _in[0] allready tested
