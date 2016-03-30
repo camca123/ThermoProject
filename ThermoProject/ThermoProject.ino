@@ -32,7 +32,11 @@ void setup()
 
 void loop()
 {
-  Serial.println("AAAAAAAAAAAAA");
+  Serial.println(map(analogRead(0), 0, 1023, 0, 100));
+  temp++;
+  delay(5);
+  if (temp >= 1023)
+    temp = 0;
   //temp = readTherm(0, 40, pullup1, vref);
   //Serial.println("Temperature reading \t" + String(temp));
 }
