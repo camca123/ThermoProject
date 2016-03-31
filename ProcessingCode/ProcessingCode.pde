@@ -7,9 +7,9 @@ boolean editing = false; //If the user is editing the setpoint
 
 float currTemp = -1;
 float inByte = 0;
-float setpoint = 25;
+int setpoint = 25;
 float tempRange = 150;
-float timeRange = 60; //Seconds
+float timeRange = 10; //Seconds
 float updateTime = 200; //Microseconds
 
 long beforeTime = 0;
@@ -32,7 +32,9 @@ class Line {
 }
 
 void setup () {
-  size(1200, 900); // set the window size
+  size(1200, 900); //Set the window size
+  frame.setResizable(true); //Window is resizable
+  
   println(Serial.list()); // List all the available serial ports
 
   try{
@@ -49,8 +51,8 @@ void setup () {
   lines[1] = new Line(0, 0, 0, 0, 0, 255, 0); //Setpoint line
 }
 void draw () {
-  if (millis() - beforeTime > updateTime){ //Wait 1 second before updating
-    for (int C = 0;C < lines.length;C++){ //Draw all of the lines
+  if (millis() - beforeTime > updateTime) { //Wait 1 second before updating
+    for (int C = 0;C < lines.length;C++) { //Draw all of the lines
       strokeWeight(6);
       stroke(lines[C].R, lines[C].G, lines[C].B);
       line(lines[C].x_1, height - lines[C].y_1, lines[C].x_2, height - lines[C].y_2);
@@ -63,7 +65,7 @@ void draw () {
       }
       background(255, 255, 255); //Redraw the background
     } else {
-      for (int C = 0;C < lines.length;C++){ //Update all of the lines
+      for (int C = 0;C < lines.length;C++) { //Update all of the lines
           lines[C].x_1 = lines[C].x_2;
           lines[C].y_1 = lines[C].y_2;
           lines[C].x_2 += (width/timeRange)*(updateTime/1000);
@@ -78,7 +80,7 @@ void draw () {
 }
 
 void drawLabels() {
-  for (int C = 0;C < height;C++){ //Horizontal tick marks
+  for (int C = 0;C < height;C++) { //Horizontal tick marks
     if (C % (5*height/tempRange) == 0){
       strokeWeight(1);
       stroke(200, 200, 200);
@@ -90,7 +92,7 @@ void drawLabels() {
   }
   stroke(0, 0, 0);
   strokeWeight(4);
-  for (int C = 0;C < width;C++){ //Vertical tick marks
+  for (int C = 0;C < width;C++) { //Vertical tick marks
     if (C % (width/timeRange) == 0)
       line(C, height, C, height-30);
   }
@@ -120,17 +122,23 @@ void serialEvent (Serial myPort) {
     inString = trim(inString); // Trim off any whitespace
     inByte = float(inString);
     currTemp = inByte;
-    println("Temp: "+currTemp); // Print input to console
+    println("Temp: " + currTemp); // Print input to console
   }
 }
 
 void keyPressed() {
   textInput += key;
   if (key == ENTER || key == RETURN){
-    try{
-      setpoint = Float.parseFloat(textInput);
+    try {
+      setpoint = (int)Float.parseFloat(textInput);
     } catch (Exception e) {
+      println("Error parsing user input");
       setpoint = 25;
+    }
+    try {
+      myPort.write((int)setpoint);
+    } catch (Exception e) {
+      println("Error writing to serial port");
     }
     editing = false;
     textInput = "";
