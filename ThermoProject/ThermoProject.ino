@@ -10,8 +10,8 @@
 
 Servo jag;
 
-long out_lookup[] = {150,145,140,135,130,125,120,115,110,105,100,95,90,85,80,75,70,65,60,55,50,45,40,35,30,25,20,15,10,5,0,-5,-10,-15,-20,-25,-30,-35,-40};
-long in_lookup[] = {1618,1827,2070,2350,2676,3057,3503,4026,4643,5372,6238,7269,8504,9988,11780,13951,16597,19835,23820,28749,34879,42548,52200,64422,80003,100000,125851,159522,203723,262229,340346,445602,588793,785573,1058901,1442861,1988706,2774565,3921252};
+float out_lookup[] = {150,145,140,135,130,125,120,115,110,105,100,95,90,85,80,75,70,65,60,55,50,45,40,35,30,25,20,15,10,5,0,-5,-10,-15,-20,-25,-30,-35,-40};
+float in_lookup[] = {1618,1827,2070,2350,2676,3057,3503,4026,4643,5372,6238,7269,8504,9988,11780,13951,16597,19835,23820,28749,34879,42548,52200,64422,80003,100000,125851,159522,203723,262229,340346,445602,588793,785573,1058901,1442861,1988706,2774565,3921252};
 const int ARR_LEN = 39;
 
 const double vref = 5.0; //Reference voltage
@@ -35,7 +35,7 @@ void loop()
   if (Serial.available() > 0) //If data is available
     setpoint = Serial.read();
   temp = readTherm(0, 500, pullup1, vref); //Read for 1 second and return the average
-  temp = random(100);
+  //temp = random(100);
   Serial.println(String(temp)); // Print temperature reading to the serial console
 }
 
@@ -59,7 +59,7 @@ float readTherm(int port, long time, double pullup_res, double v_ref)
   return multiMap(avg, in_lookup, out_lookup, ARR_LEN);
 }
 
-int multiMap(long val, long* _in, long* _out, uint8_t sizee)
+float multiMap(float val, float* _in, float* _out, uint8_t sizee)
 {
   // take care the value is within range
   // val = constrain(val, _in[0], _in[size-1]);
