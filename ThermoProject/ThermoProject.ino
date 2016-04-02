@@ -2,70 +2,54 @@
 #include <PID_v1.h>
 
 #define THERM_PIN 0
-#define JAG_PIN 9
-#define Kp 1
+#define JAG_PIN 3
+#define Kp 5
 #define Ki 0
 #define Kd 0
 
+//float out_lookup[] = {150,145,140,135,130,125,120,115,110,105,100,95,90,85,80,75,70,65,60,55,50,45,40,35,30,25,20,15,10,5,0,-5,-10,-15,-20,-25,-30,-35,-40};
+//float in_lookup[] = {1618,1827,2070,2350,2676,3057,3503,4026,4643,5372,6238,7269,8504,9988,11780,13951,16597,19835,23820,28749,34879,42548,52200,64422,80003,100000,125851,159522,203723,262229,340346,445602,588793,785573,1058901,1442861,1988706,2774565,3921252};
+
 const float _100kHoneywellLookup[][2] = { // Resistance, Temperature (deg C)
-  {1, 941},
-  {19, 362},
-  {37, 299}, //top rating 300C
-  {55, 266},
-  {73, 245},
-  {91, 229},
-  {109, 216},
-  {127, 206},
-  {145, 197},
-  {163, 190},
-  {181, 183},
-  {199, 177},
-  {217, 171},
-  {235, 166},
-  {253, 162},
-  {271, 157},
-  {289, 153},
-  {307, 149},
-  {325, 146},
-  {343, 142},
-  {361, 139},
-  {379, 135},
-  {397, 132},
-  {415, 129},
-  {433, 126},
-  {451, 123},
-  {469, 121},
-  {487, 118},
-  {505, 115},
-  {523, 112},
-  {541, 110},
-  {559, 107},
-  {577, 105},
-  {595, 102},
-  {613, 99},
-  {631, 97},
-  {649, 94},
-  {667, 92},
-  {685, 89},
-  {703, 86},
-  {721, 84},
-  {739, 81},
-  {757, 78},
-  {775, 75},
-  {793, 72},
-  {811, 69},
-  {829, 66},
-  {847, 62},
-  {865, 59},
-  {883, 55},
-  {901, 51},
-  {919, 46},
-  {937, 41},
-  {955, 35},
-  {973, 27},
-  {991, 17},
-  {1009, 1},
-  {1023, 0} //to allow internal 0 degrees C
+  {1618, 150},
+  {1827, 145},
+  {2070, 140},
+  {2350, 135},
+  {2676, 130},
+  {3057, 125},
+  {3503, 120},
+  {4026, 115},
+  {4643, 110},
+  {5372, 105},
+  {6238, 100},
+  {7269, 95},
+  {8504, 90},
+  {9988, 85},
+  {11780, 80},
+  {13951, 75},
+  {16597, 70},
+  {19835, 65},
+  {23820, 60},
+  {28749, 55},
+  {34879, 50},
+  {42548, 45},
+  {52200, 40},
+  {64422, 35},
+  {80003, 30},
+  {100000, 25},
+  {125851, 20},
+  {159522, 15},
+  {203723, 10},
+  {262229, 5},
+  {340346, 0},
+  {445602, -5},
+  {588793, -10},
+  {785573, -15},
+  {1058901, -20},
+  {1442861, -25},
+  {1988706, -30},
+  {2774565, -35},
+  {3921252, -40}
 };
 
 Servo jag;
@@ -92,6 +76,13 @@ void setup() {
 }
 
 void loop() {
+  setPower(jag, 100);
+  delay(2000);
+  setPower(jag, 50);
+  delay(2000);
+  setPower(jag, 0);
+  delay(2000);
+  return;
   if (Serial.available() > 0) //If data is available
     setpoint = Serial.read();
   temp = readTherm(0, 500, pullup1, vref); //Read for 1 second and return the average
@@ -103,7 +94,7 @@ void loop() {
 }
 
 int setPower (Servo controller, double percent) {
-  controller.write(map(percent, -180, 180, 0, 100));
+  controller.write(map(percent, 0, 100, 0, 90));
   return controller.read(); //Return what we wrote
 }
 
@@ -117,10 +108,10 @@ float readTherm(int port, long time, double pullup_res, double v_ref) {
   }
   
   float avg = ((float)tempTotal)/((float)numPoints);
-  return multiMap(avg, (float**)_100kHoneywellLookup, sizeof(_100kHoneywellLookup)/sizeof(_100kHoneywellLookup[0]));
+  return multiMap(avg, _100kHoneywellLookup, sizeof(_100kHoneywellLookup)/sizeof(_100kHoneywellLookup[0]));
 }
 
-float multiMap(float val, float** lookup, uint8_t sizee) {
+float multiMap(float val, const float lookup[][2], uint8_t sizee) {
   // take care the value is within range
   // val = constrain(val, _in[0], _in[size-1]);
   if (val <= lookup[0][0]) { //Value is too small

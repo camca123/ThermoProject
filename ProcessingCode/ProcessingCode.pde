@@ -9,8 +9,8 @@ float currTemp = -1;
 float inByte = 0;
 int setpoint = 25;
 float tempRange = 150;
-float timeRange = 10; //Seconds
-float updateTime = 200; //Microseconds
+float timeRange = 60; //Seconds
+float updateTime = 200; //Milliseconds
 
 long beforeTime = 0;
 
