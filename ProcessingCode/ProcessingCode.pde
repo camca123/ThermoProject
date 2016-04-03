@@ -9,10 +9,12 @@ float currTemp = -1;
 float inByte = 0;
 int setpoint = 25;
 float tempRange = 150;
-float timeRange = 60; //Seconds
+float timeRange = 10; //Seconds
 float updateTime = 200; //Milliseconds
 
 long beforeTime = 0;
+PImage img;
+int CONTRAST = 3;
 
 Line[] lines;
 
@@ -45,6 +47,9 @@ void setup () {
   }
 
   background(255, 255, 255); // Set inital background
+  img = loadImage("data", "gif");
+  tint(255, CONTRAST);
+  image(img, 0, 0, width, height);
   
   lines = new Line[2];
   lines[0] = new Line(0, 0, 0, 0, 255, 0, 0); //Temperature line
@@ -64,6 +69,8 @@ void draw () {
         lines[C].x_1 = 0;
       }
       background(255, 255, 255); //Redraw the background
+      tint(255, CONTRAST);
+      image(img, 0, 0, width, height);
     } else {
       for (int C = 0;C < lines.length;C++) { //Update all of the lines
           lines[C].x_1 = lines[C].x_2;
@@ -149,4 +156,12 @@ void keyPressed() {
   } else {
     editing = true;
   }
+}
+
+void mousePressed(){
+  CONTRAST = 50;
+}
+
+void mouseReleased(){
+  CONTRAST = 3;
 }
