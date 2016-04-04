@@ -9,12 +9,12 @@ float currTemp = -1;
 float inByte = 0;
 int setpoint = 25;
 float tempRange = 150;
-float timeRange = 10; //Seconds
+float timeRange = 60; //Seconds
 float updateTime = 200; //Milliseconds
 
 long beforeTime = 0;
 PImage img;
-int CONTRAST = 3;
+int CONTRAST = 2;
 
 Line[] lines;
 
@@ -159,9 +159,9 @@ void keyPressed() {
 }
 
 void mousePressed(){
-  CONTRAST = 50;
+  CONTRAST = 20;
 }
 
 void mouseReleased(){
-  CONTRAST = 3;
+  CONTRAST = 2;
 }
