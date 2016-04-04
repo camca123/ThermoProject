@@ -15,6 +15,7 @@ float updateTime = 200; //Milliseconds
 long beforeTime = 0;
 PImage img;
 int CONTRAST = 2;
+float microstates = 50;
 
 Line[] lines;
 
@@ -51,13 +52,16 @@ void setup () {
   tint(255, CONTRAST);
   image(img, 0, 0, width, height);
   
-  lines = new Line[2];
+  lines = new Line[3];
   lines[0] = new Line(0, 0, 0, 0, 255, 0, 0); //Temperature line
   lines[1] = new Line(0, 0, 0, 0, 0, 255, 0); //Setpoint line
+  lines[2] = new Line(0, 0, 0, 0, 0, 255, 255); //Setpoint line
 }
 void draw () {
   if (millis() - beforeTime > updateTime) { //Wait 1 second before updating
     for (int C = 0;C < lines.length;C++) { //Draw all of the lines
+      if(C == 2 && CONTRAST < 10)
+        continue;
       strokeWeight(6);
       stroke(lines[C].R, lines[C].G, lines[C].B);
       line(lines[C].x_1, height - lines[C].y_1, lines[C].x_2, height - lines[C].y_2);
@@ -76,9 +80,11 @@ void draw () {
           lines[C].x_1 = lines[C].x_2;
           lines[C].y_1 = lines[C].y_2;
           lines[C].x_2 += (width/timeRange)*(updateTime/1000);
+          microstates += random(5.0*sin(lines[C].x_1)/(C+1));
       }
       lines[0].y_2 = map(currTemp, 0, tempRange, 0, height);
       lines[1].y_2 = map(setpoint, 0, tempRange, 0, height);
+      lines[2].y_2 = map(microstates, 0, tempRange, 0, height);
     }
     beforeTime = millis();
   }
